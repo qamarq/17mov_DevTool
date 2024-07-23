@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Logo from "./assets/logo.svg";
 import LogoOutline from "./assets/logo_outline.svg";
 import { Icons } from './components/icons';
@@ -11,6 +11,9 @@ import { container } from "./lib/framer";
 import WorldPage from "./pages/world";
 import InteriorPage from "./pages/interior";
 import PedsPage from "./pages/peds";
+import { cn, isInBrowser } from "./lib/utils";
+import { useNuiEvent, useNuiRequest } from "fivem-nui-react-lib";
+import { useData } from "./hooks/use-data";
 
 const PAGES = [
     { icon: 'Home', label: 'Home', page: 'home' },
@@ -22,9 +25,34 @@ const PAGES = [
 
 function App() {
     const [currentPage, setCurrentPage] = useState('home');
+    const [openedUI, setOpenedUI] = useState(false);
+    const { send } = useNuiRequest();
+    const { setIncomingData } = useData();
+
+    useNuiEvent('17mov_DevTool', 'toggleui', (data: boolean)  => {
+        setOpenedUI(data);
+    })
+
+    useNuiEvent('17mov_DevTool', 'refreshdata', (data: IncomingData)  => setIncomingData(data))
+
+    useEffect(() => {
+        const down = (e: KeyboardEvent) => { if (e.key === "Escape") closeUI() }
+     
+        document.addEventListener("keydown", down)
+        return () => document.removeEventListener("keydown", down)
+    }, [])
+
+    const closeUI = () => {
+        if (isInBrowser()) {
+            return
+        }
+
+        setOpenedUI(false);
+        send('CloseUI');
+    }
 
     return (
-        <div className='h-screen w-screen py-10'>
+        <div className={cn('h-screen w-screen py-10', { 'hidden': !openedUI })}>
             <div className='h-full mx-10'>
                 <div className='bg-[#090A0E] max-w-[600px] h-full rounded-md relative overflow-hidden flex flex-col'>
                     <header className='flex items-center relative'>
@@ -39,6 +67,7 @@ function App() {
                         <div className='flex items-center justify-center gap-5 mr-4 text-zinc-400 z-10'>
                             <a href="#"><Icons.Globe className='w-5 h-5' /></a>
                             <a href="#"><Icons.Discord className='w-5 h-5' /></a>
+                            <button onClick={closeUI}><Icons.LogOut className='w-5 h-5' /></button>
                         </div>
                         <div className='absolute bottom-0 inset-0 bg-gradient-to-b from-transparent to-[#090A0E] from-70%'></div>
                     </header>

@@ -3,7 +3,7 @@ import { FaDiscord } from 'react-icons/fa';
 import { FiGlobe } from 'react-icons/fi';
 import { GoHomeFill } from 'react-icons/go';
 import { HiMiniWrenchScrewdriver } from 'react-icons/hi2';
-import { IoMdEye, IoMdPin } from 'react-icons/io';
+import { IoMdEye, IoMdLogOut, IoMdPin } from 'react-icons/io';
 import { MdAccessTimeFilled, MdCancel, MdOutlineAddCircle, MdPets, MdSave } from 'react-icons/md';
 import { PiCopySimple } from 'react-icons/pi';
 import { RiEditFill, RiSofaFill } from 'react-icons/ri';
@@ -39,5 +39,6 @@ export const Icons = {
     Edit: RiEditFill,
     Trash: BiSolidTrashAlt,
     Save: MdSave,
-    Cancel: MdCancel
+    Cancel: MdCancel,
+    LogOut: IoMdLogOut
 };

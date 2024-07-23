@@ -24,7 +24,7 @@ interface Ped {
 }
 
 export default function PedsPage() {
-    const [peds, setPeds] = useState<Ped[]>([
+    const [peds] = useState<Ped[]>([
         { id: v4(), model: "mp_f_freemode_01", name: 'My ped 1', coords: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, animation: { dict: '', clip: '' } },
         { id: v4(), model: "mp_m_freemode_01", name: 'My ped 2', coords: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, animation: { dict: '', clip: '' } },
         { id: v4(), model: "mp_f_freemode_01", name: 'My ped 3', coords: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, animation: { dict: '', clip: '' } },

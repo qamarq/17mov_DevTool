@@ -20,8 +20,34 @@ import {
 import { motion } from 'framer-motion';
 import { item } from '@/lib/framer';
 import { Input } from '@/components/ui/input';
+import { useData } from '@/hooks/use-data';
+import { useNuiRequest } from 'fivem-nui-react-lib';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function HomePage() {
+    const { data } = useData();
+    const { send } = useNuiRequest()
+    
+    const [time, setTime] = useState({ hour: '13', minute: '06' });
+    const [weather, setWeather] = useState('clear');
+
+    useEffect(() => {
+        if (!data) return;
+        setTime(data.time);
+        setWeather(data.weather);
+    }, [data])
+
+    const setNewTime = () => {
+        send('setTime', { hour: time.hour, minute: time.minute });
+        toast.success('Setting time to ' + time.hour + ':' + time.minute);
+    }
+
+    const setNewWeather = () => {
+        send('setWeather', { weather: weather });
+        toast.success('Setting weather to ' + weather);
+    }
+
     return (
         <Accordion
             type="multiple"
@@ -38,11 +64,11 @@ export default function HomePage() {
                     <div className='flex flex-col px-4'>
                         <AccordionLayout>
                             <AccordionTitle className='w-auto'>Coordinates</AccordionTitle>
-                            <CopyCode value={"X: -803.717 Y: 176.49, Z: 72.841"} />
+                            <CopyCode label={`X: ${data?.coords.x.toFixed(2)}, Y: ${data?.coords.y.toFixed(2)}, Z: ${data?.coords.z.toFixed(2)}`} value={JSON.stringify(data?.coords)} />
                         </AccordionLayout>
                         <AccordionLayout>
                             <AccordionTitle className='w-auto'>Heading</AccordionTitle>
-                            <CopyCode value={"213.635"} />
+                            <CopyCode value={`${data?.heading.toFixed(3)}`} />
                         </AccordionLayout>
                     </div>
                 </AccordionContent>
@@ -59,39 +85,53 @@ export default function HomePage() {
                         <AccordionLayout>
                             <AccordionTitle>Set Time</AccordionTitle>
                             <div className='grid grid-cols-4 gap-2 w-full'>
-                                <Input defaultValue={"13"} type='text' className='text-center' />
-                                <Input defaultValue={"06"} type='text' className='text-center' />
-                                <Button className='col-span-2 rounded-sm' motionBtn>Apply</Button>
+                                <Input 
+                                    value={time.hour} 
+                                    onChange={(e) => setTime(prev => {
+                                        return { ...prev, hour: e.target.value }
+                                    })}
+                                    type='text' 
+                                    className='text-center' 
+                                />
+                                <Input 
+                                    value={time.minute} 
+                                    onChange={(e) => setTime(prev => {
+                                        return { ...prev, minute: e.target.value }
+                                    })} 
+                                    type='text' 
+                                    className='text-center' 
+                                />
+                                <Button className='col-span-2 rounded-sm' motionBtn onClick={setNewTime}>Apply</Button>
                             </div>
                         </AccordionLayout>
                         <AccordionLayout>
                             <AccordionTitle>Weather</AccordionTitle>
                             <div className='grid grid-cols-4 gap-2 w-full'>
-                                <Select defaultValue='clear'>
+                                <Select value={weather} onValueChange={setWeather}>
                                     <SelectTrigger className="col-span-2">
                                         <SelectValue placeholder="Select a weather" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectGroup>
-                                            <SelectItem value="clear">CLEAR</SelectItem>
-                                            <SelectItem value="extrasunny">EXTRASUNNY</SelectItem>
-                                            <SelectItem value="clouds">CLOUDS</SelectItem>
-                                            <SelectItem value="overcast">OVERCAST</SelectItem>
-                                            <SelectItem value="rain">RAIN</SelectItem>
-                                            <SelectItem value="clearing">CLEARING</SelectItem>
-                                            <SelectItem value="thunder">THUNDER</SelectItem>
-                                            <SelectItem value="smog">SMOG</SelectItem>
-                                            <SelectItem value="foggy">FOGGY</SelectItem>
-                                            <SelectItem value="xmas">XMAS</SelectItem>
-                                            <SelectItem value="snow">SNOW</SelectItem>
-                                            <SelectItem value="snowlight">SNOWLIGHT</SelectItem>
-                                            <SelectItem value="blizzard">BLIZZARD</SelectItem>
-                                            <SelectItem value="halloween">HALLOWEEN</SelectItem>
-                                            <SelectItem value="neutral">NEUTRAL</SelectItem>
+                                            <SelectItem value="CLEAR">CLEAR</SelectItem>
+                                            <SelectItem value="EXTRASUNNY">EXTRASUNNY</SelectItem>
+                                            <SelectItem value="CLOUDS">CLOUDS</SelectItem>
+                                            <SelectItem value="OVERCAST">OVERCAST</SelectItem>
+                                            <SelectItem value="RAIN">RAIN</SelectItem>
+                                            <SelectItem value="CLEARING">CLEARING</SelectItem>
+                                            <SelectItem value="THUNDER">THUNDER</SelectItem>
+                                            <SelectItem value="SMOG">SMOG</SelectItem>
+                                            <SelectItem value="FOGGY">FOGGY</SelectItem>
+                                            <SelectItem value="XMAS">XMAS</SelectItem>
+                                            <SelectItem value="SNOW">SNOW</SelectItem>
+                                            <SelectItem value="SNOWLIGHT">SNOWLIGHT</SelectItem>
+                                            <SelectItem value="BLIZZARD">BLIZZARD</SelectItem>
+                                            <SelectItem value="HALLOWEEN">HALLOWEEN</SelectItem>
+                                            <SelectItem value="NEUTRAL">NEUTRAL</SelectItem>
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
-                                <Button className='col-span-2 rounded-sm' motionBtn>Apply</Button>
+                                <Button className='col-span-2 rounded-sm' motionBtn onClick={setNewWeather}>Apply</Button>
                             </div>
                         </AccordionLayout>
                         <AccordionLayout>
