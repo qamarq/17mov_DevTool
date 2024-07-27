@@ -17,13 +17,14 @@ AccordionItem.displayName = 'AccordionItem';
 
 interface AccordionTriggerProps extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {
     handleDelete?: () => void;
+    deleteLoading?: boolean;
     className?: string;
 }
 
 const AccordionTrigger = React.forwardRef<
     React.ElementRef<typeof AccordionPrimitive.Trigger>,
     AccordionTriggerProps
->(({ className, children, handleDelete, ...props }, ref) => (
+>(({ className, children, handleDelete, deleteLoading, ...props }, ref) => (
     <AccordionPrimitive.Header className="flex">
         <AccordionPrimitive.Trigger
             ref={ref}
@@ -35,10 +36,16 @@ const AccordionTrigger = React.forwardRef<
             {children}
             <div className='flex items-center gap-2'>
                 {handleDelete && (
-                    <Icons.Trash
-                        className="w-4 h-4 text-zinc-100 cursor-pointer transition-transform duration-200 !rotate-0"
-                        onClick={(e) => { e.stopPropagation(); handleDelete(); }}
-                    />
+                    <>
+                        {deleteLoading ? (
+                            <Icons.Loading className="h-4 w-4" />
+                        ) : (
+                            <Icons.Trash
+                                className="w-4 h-4 text-zinc-100 cursor-pointer transition-transform duration-200 !rotate-0"
+                                onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+                            />
+                        )}
+                    </>
                 )}
                 <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
             </div>

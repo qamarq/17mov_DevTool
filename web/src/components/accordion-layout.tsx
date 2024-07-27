@@ -10,9 +10,9 @@ const item = {
     },
 };
 
-export function AccordionLayout({ children }: { children: React.ReactNode }) {
+export function AccordionLayout({ children, className }: { children: React.ReactNode, className?: string }) {
     return (
-        <motion.div variants={item} className='flex items-center justify-between gap-2 py-1 min-h-[60px]'>
+        <motion.div variants={item} className={cn('flex items-center justify-between gap-2 py-1 min-h-[60px]', className)}>
             {children}
         </motion.div>
     )

@@ -1,3 +1,3 @@
 Config = {}
 
-Config.RefreshDataTime = 1000
+Config.RefreshDataTime = 100

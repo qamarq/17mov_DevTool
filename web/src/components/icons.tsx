@@ -1,5 +1,6 @@
+import { Loader2 } from 'lucide-react';
 import { BiSolidTrashAlt } from 'react-icons/bi';
-import { FaDiscord } from 'react-icons/fa';
+import { FaAngleLeft, FaAngleRight, FaDiscord } from 'react-icons/fa';
 import { FiGlobe } from 'react-icons/fi';
 import { GoHomeFill } from 'react-icons/go';
 import { HiMiniWrenchScrewdriver } from 'react-icons/hi2';
@@ -40,5 +41,8 @@ export const Icons = {
     Trash: BiSolidTrashAlt,
     Save: MdSave,
     Cancel: MdCancel,
-    LogOut: IoMdLogOut
+    LogOut: IoMdLogOut,
+    Left: FaAngleLeft,
+    Right: FaAngleRight,
+    Loading: Loader2
 };

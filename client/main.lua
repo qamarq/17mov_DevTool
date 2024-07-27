@@ -1,29 +1,10 @@
-local isMenuOpened = false
-
-local weatherHashMap = {
-    [GetHashKey("CLEAR")] = "CLEAR",
-    [GetHashKey("EXTRASUNNY")] = "EXTRASUNNY",
-    [GetHashKey("CLOUDS")] = "CLOUDS",
-    [GetHashKey("OVERCAST")] = "OVERCAST",
-    [GetHashKey("RAIN")] = "RAIN",
-    [GetHashKey("CLEARING")] = "CLEARING",
-    [GetHashKey("THUNDER")] = "THUNDER",
-    [GetHashKey("SMOG")] = "SMOG",
-    [GetHashKey("FOGGY")] = "FOGGY",
-    [GetHashKey("XMAS")] = "XMAS",
-    [GetHashKey("SNOW")] = "SNOW",
-    [GetHashKey("SNOWLIGHT")] = "SNOWLIGHT",
-    [GetHashKey("BLIZZARD")] = "BLIZZARD",
-    [GetHashKey("HALLOWEEN")] = "HALLOWEEN",
-    [GetHashKey("NEUTRAL")] = "NEUTRAL"
-}
 
 -- OPEN/CLOSE MENU
 
 RegisterCommand("17movdevtool_open", function()
     SendNUIMessage({
         app = '17mov_DevTool', 
-        method = 'refreshdata',
+        method = 'refreshData',
         data = {
             coords = GetEntityCoords(PlayerPedId()),
             heading = GetEntityHeading(PlayerPedId()),
@@ -31,22 +12,58 @@ RegisterCommand("17movdevtool_open", function()
                 hour = GetClockHours(),
                 minute = GetClockMinutes()
             },
-            weather = weatherHashMap[GetWeatherTypeTransition()]
+            weather = Utils.weatherHashMap[GetWeatherTypeTransition()],
+            portals = {
+                portalPoly = Client.portalPoly,
+                portalLines = Client.portalLines,
+                portalCorners = Client.portalCorners,
+                portalInfos = Client.portalInfos
+            }
         }
     })
+    if not Client.timecyclesLoaded then
+        SendNUIMessage({
+            app = '17mov_DevTool',
+            method = 'setTimecycleList',
+            data = Client.data.timecycles
+        })
+        Client.timecyclesLoaded = true
+    end
+    Client.GetInteriorData()
     SetNuiFocus(true, true)
     SendNUIMessage({
         app = '17mov_DevTool', 
-        method = 'toggleui',
+        method = 'toggleUI',
         data = true
     })
-    isMenuOpened = true
+    Client.isMenuOpen = true
 end)
 
 RegisterNUICallback("CloseUI", function(data, cb)
     SetNuiFocus(false,false)
-    isMenuOpened = false
+    Client.isMenuOpen = false
     cb("ok")
+end)
+
+RegisterNUICallback("CloseUIFromUI", function(data, cb)
+    SetNuiFocus(false,false)
+    SendNUIMessage({
+        app = '17mov_DevTool', 
+        method = 'toggleUI',
+        data = false
+    })
+    Client.isMenuOpen = false
+    cb("ok")
+end)
+
+RegisterNUICallback("KeepInput", function(data)
+    SetNuiFocusKeepInput(data)
+    Client.isKeepInput = data
+end)
+
+RegisterNUICallback('ToggleCameraRotation', function(data, cb)
+    -- print("Camera rotation toggled: " .. json.encode(data))
+    Client.cameraRotation = data
 end)
 
 RegisterKeyMapping('17movdevtool_open', 'Open 17Movement Devtool', 'keyboard', 'OEM_3')
@@ -62,11 +79,14 @@ RegisterNUICallback('setWeather', function(data, cb)
     TriggerServerEvent('17mov_DevTool:setWeather', data)
 end)
 
--- DATA LOOP
--- Citizen.CreateThread(function()
---     while true do
---         Citizen.Wait(Config.RefreshDataTime)
---         local weather = GetWeatherTypeTransition()
---         local weatherName = weatherHashMap[weather]
---     end
--- end)
+
+
+-- Delete all entitied on script stop
+AddEventHandler('onResourceStop', function(resourceName)
+    if (GetCurrentResourceName() ~= resourceName) then
+        return
+    end
+    for k, v in pairs(Client.spawnedEntities) do
+        DeleteEntity(v.handle)
+    end
+end)

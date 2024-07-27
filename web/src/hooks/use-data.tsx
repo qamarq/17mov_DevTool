@@ -6,7 +6,11 @@ import React, {
 
 type DataContext = {
     data: IncomingData | null;
-    setIncomingData: (data: IncomingData) => void;
+    setData: React.Dispatch<React.SetStateAction<IncomingData | null>>;
+    interiorData: InteriorData | null;
+    setInteriorData: React.Dispatch<React.SetStateAction<InteriorData | null>>;
+    timecyclesData: TimecyclesData[] | null;
+    setTimecyclesData: React.Dispatch<React.SetStateAction<TimecyclesData[] | null>>;
 };
 
 const Context = createContext({} as DataContext);
@@ -15,16 +19,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
     const [data, setData] = useState<IncomingData | null>(null);
-
-    const setIncomingData = (data: IncomingData) => {
-        setData(data)
-    }
+    const [interiorData, setInteriorData] = useState<InteriorData | null>(null);
+    const [timecyclesData, setTimecyclesData] = useState<TimecyclesData[] | null>(null);
 
     return (
         <Context.Provider
             value={{
                 data,
-                setIncomingData,
+                setData,
+                interiorData,
+                setInteriorData,
+                timecyclesData,
+                setTimecyclesData,
             }}>
             {children}
         </Context.Provider>

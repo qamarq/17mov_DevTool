@@ -22,20 +22,22 @@ import { item } from '@/lib/framer';
 import { Input } from '@/components/ui/input';
 import { useData } from '@/hooks/use-data';
 import { useNuiRequest } from 'fivem-nui-react-lib';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 export default function HomePage() {
     const { data } = useData();
     const { send } = useNuiRequest()
+    const firstTimeRef = useRef(true);
     
     const [time, setTime] = useState({ hour: '13', minute: '06' });
     const [weather, setWeather] = useState('clear');
 
     useEffect(() => {
-        if (!data) return;
+        if (!data || !firstTimeRef.current) return;
         setTime(data.time);
         setWeather(data.weather);
+        firstTimeRef.current = false
     }, [data])
 
     const setNewTime = () => {
