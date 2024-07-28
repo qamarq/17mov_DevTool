@@ -18,6 +18,7 @@ client_scripts {
     'utils.lua',
     'client/init.lua',
     'client/gizmo.lua',
+    'client/gizmo2.lua',
     'client/main.lua',
     'client/interiors.lua',
     'client/prop.lua',

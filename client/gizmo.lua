@@ -231,23 +231,3 @@ if enableScale then
         end
     })
 end
-
-
-
--- local model = `prop_mp_cone_02`
--- RegisterCommand('testGizmo', function()
---     local offset = GetEntityCoords(cache.ped) + GetEntityForwardVector(cache.ped) * 3
---     lib.requestModel(model)
---     local obj = CreateObject(model, offset.x, offset.y, offset.z, false, false, false)
---     AttachEntityToEntity(obj, cache.ped, GetPedBoneIndex(cache.ped, 0), -0.269775, 0.310547, -0.020943, 0.0, 0.0, 0.0, false, false, false, false, 2, true)
-
---     -- local data = useGizmo(obj)
-
---     -- -- get offset to selected bone in player
---     -- local boneId = GetPedBoneIndex(cache.ped, 0)
---     -- local boneCoords = GetWorldPositionOfEntityBone(cache.ped, boneId)
---     -- local offset = boneCoords - vector3(data.position.x, data.position.y, data.position.z)
---     -- print('offset', offset)
--- end)
-
-

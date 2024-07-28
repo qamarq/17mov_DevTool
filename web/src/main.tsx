@@ -6,6 +6,7 @@ import { NuiProvider } from "fivem-nui-react-lib";
 import { DataProvider } from './hooks/use-data.tsx';
 import { RecoilRoot } from 'recoil';
 import { isInBrowser } from './lib/utils.ts';
+import { ThreeComponent } from './components/gizmo/ThreeComponent.tsx';
 
 if (isInBrowser()) {
     const root = document.getElementById('root')
@@ -22,6 +23,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <NuiProvider resource="17mov_DevTool">
                 <DataProvider>
                     <App />
+                    <div className='w-screen h-screen absolute inset-0'>
+                        <ThreeComponent />
+                    </div>
                 </DataProvider>
             </NuiProvider>
         </RecoilRoot>

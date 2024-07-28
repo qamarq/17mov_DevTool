@@ -18,34 +18,43 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Button } from '@/components/ui/button';
-import { useNuiEvent, useNuiRequest } from 'fivem-nui-react-lib';
-import { useEffect, useState } from 'react';
+import { useNuiCallback, useNuiEvent, useNuiRequest } from 'fivem-nui-react-lib';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import CopyCode from '@/components/copy-code';
+import { setClipboard } from '@/lib/utils';
 
 export default function PropPage() {
-    const [selectedBone, setSelectedBone] = useState<string | null>(null);
+    const [selectedBone, setSelectedBone] = useState<number | null>(null);
+    const [propModel, setPropModel] = useState<string>("prop_tool_fireaxe");
+    const [animDict, setAnimDict] = useState<string>("");
+    const [animClip, setAnimClip] = useState<string>("");
     const { send } = useNuiRequest();
     const [bones, setBones] = useState<PedBone[]>([]);
+    const firstTimeRef = useRef(true);
+    const [resultNative, setResultNative] = useState<string>("");
+    const [resultRAW, setResultRAW] = useState<string>("");
 
-    useNuiEvent('17mov_DevTool', 'setPedBones', (data: PedBone[]) => {
-        setBones(data)
-        setSelectedBone(data[0].boneId)
-    })
+    const [fetchLoadBones, { loading }] = useNuiCallback('17mov_DevTool', 'GetPedBones', setBones)
 
     useEffect(() => {
-        send('changePropBone', selectedBone)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedBone])
+        if (firstTimeRef.current) {
+            firstTimeRef.current = false
+            fetchLoadBones()
+        }
+    }, [fetchLoadBones])
 
-    const handleSuccessOffset = (data: any) => {
-        console.log("Offset data:")
-        console.log(data)
+    const handleSuccessOffset = (data: { raw: string, native: string }) => {
+        toast.success("Offset data has been set. U can copy native now")
+        setResultNative(data.native)
+        setResultRAW(data.raw)
     }
 
     useNuiEvent('17mov_DevTool', 'setOffsetPropGizmo', handleSuccessOffset)
 
     const handleClickGetPropOffset = () => {
         send('CloseUIFromUI')
-        send('getOffsetPropGizmo', { boneId: selectedBone })
+        send('GetOffsetPropGizmo', { model: propModel, animDict, animClip, boneId: selectedBone })
     }
 
     return (
@@ -64,51 +73,34 @@ export default function PropPage() {
                     <div className='flex flex-col px-4'>
                         <AccordionLayout>
                             <AccordionTitle>Prop model</AccordionTitle>
-                            <Input defaultValue={"vw_prop_casino_slot_06a"} className='w-full' />
+                            <Input value={propModel} onChange={(e) => setPropModel(e.target.value)} className='w-full' />
                         </AccordionLayout>
                         <AccordionLayout>
                             <AccordionTitle>Target entity</AccordionTitle>
-                            <Select value={selectedBone || ""} onValueChange={setSelectedBone}>
+                            <Select>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                </SelectContent>
+                            </Select>
+                        </AccordionLayout>
+                        <AccordionLayout>
+                            <AccordionTitle>Animation</AccordionTitle>
+                            <Input placeholder='Animation dict' value={animDict} onChange={(e) => setAnimDict(e.target.value)} className='w-full' />
+                            <Input placeholder='Animation clip' className='w-full' value={animClip} onChange={(e) => setAnimClip(e.target.value)} />
+                        </AccordionLayout>
+                        <AccordionLayout>
+                            <AccordionTitle>Bones</AccordionTitle>
+                            <Select value={selectedBone?.toString() || ""} onValueChange={(val) => setSelectedBone(parseInt(val))} disabled={loading}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
                                         {bones.map((bone, index) => (
-                                            <SelectItem key={index} value={bone.boneId}>{bone.bone}</SelectItem>   
+                                            <SelectItem key={index} value={bone.boneId.toString()}>{bone.bone}</SelectItem>   
                                         ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        </AccordionLayout>
-                        <AccordionLayout>
-                            <AccordionTitle>Animation</AccordionTitle>
-                            <Input placeholder='Animation dict' className='w-full' />
-                            <Input placeholder='Animation clip' className='w-full' />
-                        </AccordionLayout>
-                        <AccordionLayout>
-                            <AccordionTitle>Bones</AccordionTitle>
-                            <Select>
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem value="clear">CLEAR</SelectItem>
-                                        <SelectItem value="extrasunny">EXTRASUNNY</SelectItem>
-                                        <SelectItem value="clouds">CLOUDS</SelectItem>
-                                        <SelectItem value="overcast">OVERCAST</SelectItem>
-                                        <SelectItem value="rain">RAIN</SelectItem>
-                                        <SelectItem value="clearing">CLEARING</SelectItem>
-                                        <SelectItem value="thunder">THUNDER</SelectItem>
-                                        <SelectItem value="smog">SMOG</SelectItem>
-                                        <SelectItem value="foggy">FOGGY</SelectItem>
-                                        <SelectItem value="xmas">XMAS</SelectItem>
-                                        <SelectItem value="snow">SNOW</SelectItem>
-                                        <SelectItem value="snowlight">SNOWLIGHT</SelectItem>
-                                        <SelectItem value="blizzard">BLIZZARD</SelectItem>
-                                        <SelectItem value="halloween">HALLOWEEN</SelectItem>
-                                        <SelectItem value="neutral">NEUTRAL</SelectItem>
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
@@ -117,9 +109,17 @@ export default function PropPage() {
                 </AccordionContent>
             </AccordionItem>
 
+            <AccordionLayout className='px-4'>
+                <AccordionTitle className='min-w-max'>RAW Results</AccordionTitle>
+                <CopyCode value={resultRAW} />
+            </AccordionLayout>
+
             <div className='flex items-center'>
-                <Button motionBtn className='rounded-none w-full h-14'>Copy native</Button>
-                <Button motionBtn className='rounded-none w-full h-14' variant={"secondary"} onClick={handleClickGetPropOffset}>Edit offset</Button>
+                <Button motionBtn className='rounded-none w-full h-14' onClick={() => {
+                    setClipboard(resultNative)
+                    toast.success("Native has been copied")
+                }}>Copy native</Button>
+                <Button motionBtn className='rounded-none w-full h-14' variant={"secondary"} disabled={propModel === "" || selectedBone === null} onClick={handleClickGetPropOffset}>Edit offset</Button>
             </div>
         </Accordion>
     )

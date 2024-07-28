@@ -57,7 +57,7 @@ interface TimecyclesData {
 
 interface PedBone {
     bone: string;
-    boneId: string;
+    boneId: number;
 }
 
 interface Preset {

@@ -31,15 +31,6 @@ function App() {
     const { send } = useNuiRequest();
     const { setData, setInteriorData, setTimecyclesData } = useData();
 
-    useEffect(() => {
-        if (currentPage === 'prop') {
-            send('toggleSpawnedOffsetProp', true)
-        } else {
-            send('toggleSpawnedOffsetProp', false)
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentPage])
-
     useNuiEvent('17mov_DevTool', 'toggleUI', (data: boolean)  => {
         setOpenedUI(data);
     })
