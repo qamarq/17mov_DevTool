@@ -70,3 +70,5 @@ CreateThread(function()
         end
     end
 end)
+
+require = Utils.require

@@ -76,13 +76,19 @@ local function gizmoLoop(entity)
         SetEntityDrawOutline(entity, true)
     end
 
+    SendNUIMessage({
+        app = '17mov_DevTool', 
+        method = 'toggleGizmoHelper',
+        data = true
+    })
+
     while gizmoEnabled and DoesEntityExist(entity) do
         Wait(0)
 
         DisableControlAction(0, 24, true)  -- lmb
         DisableControlAction(0, 25, true)  -- rmb
         DisableControlAction(0, 140, true) -- r
-        DisablePlayerFiring(cache.playerId, true)
+        DisablePlayerFiring(PlayerPedId(), true)
 
         local matrixBuffer = makeEntityMatrix(entity)
         local changed = Citizen.InvokeNative(0xEB2EDCA2, matrixBuffer:Buffer(), 'Editor1',
@@ -100,35 +106,40 @@ local function gizmoLoop(entity)
         SetEntityDrawOutline(entity, false)
     end
 
+    SendNUIMessage({
+        app = '17mov_DevTool', 
+        method = 'toggleGizmoHelper',
+        data = false
+    })
+
     gizmoEnabled = false
     currentEntity = nil
 end
 
-local function textUILoop()
-    CreateThread(function()
-        while gizmoEnabled do
-            Wait(100)
-            local scaleText = (enableScale and '[S]     - Scale Mode  \n') or ''
-            lib.showTextUI(
-                ('Current Mode: %s | %s  \n'):format(currentMode, (isRelative and 'Relative') or 'World') ..
-                '[W]     - Translate Mode  \n' ..
-                '[R]     - Rotate Mode  \n' ..
-                scaleText ..
-                '[Q]     - Relative/World  \n' ..
-                '[LALT]  - Snap To Ground  \n' ..
-                '[ENTER] - Done Editing  \n'
-            )
-        end
-        lib.hideTextUI()
-    end)
-end
+-- local function textUILoop()
+--     CreateThread(function()
+--         while gizmoEnabled do
+--             Wait(100)
+--             local scaleText = (enableScale and '[S]     - Scale Mode  \n') or ''
+--             lib.showTextUI(
+--                 ('Currenssst Mode: %s | %s  \n'):format(currentMode, (isRelative and 'Relative') or 'World') ..
+--                 '[W]     - Translate Mode  \n' ..
+--                 '[R]     - Rotate Mode  \n' ..
+--                 scaleText ..
+--                 '[Q]     - Relative/World  \n' ..
+--                 '[LALT]  - Snap To Ground  \n' ..
+--                 '[ENTER] - Done Editing  \n'
+--             )
+--         end
+--         lib.hideTextUI()
+--     end)
+-- end
 
 -- EXPORTS
 
 function useGizmo(entity)
     gizmoEnabled = true
     currentEntity = entity
-    textUILoop()
     gizmoLoop(entity)
 
     return {
@@ -140,7 +151,7 @@ end
 
 -- CONTROLS these execute the existing gizmo commands but allow me to add additional logic to update the mode display.
 
-lib.addKeybind({
+Utils.addKeybind({
     name = '_gizmoSelect',
     description = 'Selects the currently highlighted gizmo',
     defaultMapper = 'MOUSE_BUTTON',
@@ -154,7 +165,7 @@ lib.addKeybind({
     end
 })
 
-lib.addKeybind({
+Utils.addKeybind({
     name = '_gizmoTranslation',
     description = 'Sets mode of the gizmo to translation',
     defaultKey = 'W',
@@ -168,7 +179,7 @@ lib.addKeybind({
     end
 })
 
-lib.addKeybind({
+Utils.addKeybind({
     name = '_gizmoRotation',
     description = 'Sets mode for the gizmo to rotation',
     defaultKey = 'R',
@@ -182,7 +193,7 @@ lib.addKeybind({
     end
 })
 
-lib.addKeybind({
+Utils.addKeybind({
     name = '_gizmoLocal',
     description = 'toggle gizmo to be local to the entity instead of world',
     defaultKey = 'Q',
@@ -196,7 +207,7 @@ lib.addKeybind({
     end
 })
 
-lib.addKeybind({
+Utils.addKeybind({
     name = 'gizmoclose',
     description = 'close gizmo',
     defaultKey = 'RETURN',
@@ -206,7 +217,7 @@ lib.addKeybind({
     end,
 })
 
-lib.addKeybind({
+Utils.addKeybind({
     name = 'gizmoSnapToGround',
     description = 'snap current gizmo object to floor/surface',
     defaultKey = 'LMENU',
@@ -217,7 +228,7 @@ lib.addKeybind({
 })
 
 if enableScale then
-    lib.addKeybind({
+    Utils.addKeybind({
         name = '_gizmoScale',
         description = 'Sets mode for the gizmo to scale',
         defaultKey = 'S',

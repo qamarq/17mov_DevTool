@@ -10,8 +10,7 @@ shared_scripts {'@es_extended/imports.lua'}
 ui_page 'web/build/index.html'
 
 shared_scripts {
-    'config.lua',
-    '@ox_lib/init.lua'
+    'config.lua'
 }
 
 client_scripts {
@@ -41,8 +40,4 @@ server_scripts {
     '@mysql-async/lib/MySQL.lua',
     'server/functions.lua',
     'server/main.lua'
-}
-
-dependencies {
-	'ox_lib'
 }

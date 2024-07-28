@@ -1,3 +1,16 @@
+local loaded = {}
+local _require = require
+
+package = {
+    path = './?.lua;./?/init.lua',
+    preload = {},
+    loaded = setmetatable({}, {
+        __index = loaded,
+        __newindex = noop,
+        __metatable = false,
+    })
+}
+
 Utils = {}
 
 Utils.weatherHashMap = {
@@ -147,4 +160,171 @@ end
 
 Utils.randomUUID = function()
     return string.format('%s-%s-%s-%s-%s', Utils.randomString(8), Utils.randomString(4), Utils.randomString(4), Utils.randomString(4), Utils.randomString(12))
+end
+
+
+local keybinds = {}
+
+local IsPauseMenuActive = IsPauseMenuActive
+local GetControlInstructionalButton = GetControlInstructionalButton
+
+local keybind_mt = {
+    disabled = false,
+    defaultKey = '',
+    defaultMapper = 'keyboard',
+}
+
+function keybind_mt:__index(index)
+    return index == 'currentKey' and self:getCurrentKey() or keybind_mt[index]
+end
+
+function keybind_mt:getCurrentKey()
+    return GetControlInstructionalButton(0, self.hash, true):sub(3)
+end
+
+function keybind_mt:disable(toggle)
+    self.disabled = toggle
+end
+
+Utils.addKeybind = function(data)
+    data.hash = joaat('+' .. data.name) | 0x80000000
+    keybinds[data.name] = setmetatable(data, keybind_mt)
+
+    RegisterCommand('+' .. data.name, function()
+        if not data.onPressed or data.disabled or IsPauseMenuActive() then return end
+        data:onPressed()
+    end)
+
+    RegisterCommand('-' .. data.name, function()
+        if not data.onReleased or data.disabled or IsPauseMenuActive() then return end
+        data:onReleased()
+    end)
+
+    RegisterKeyMapping('+' .. data.name, data.description, data.defaultMapper, data.defaultKey)
+
+    if data.secondaryKey then
+        RegisterKeyMapping('~!+' .. data.name, data.description, data.secondaryMapper or data.defaultMapper, data.secondaryKey)
+    end
+
+    SetTimeout(500, function()
+        TriggerEvent('chat:removeSuggestion', ('/+%s'):format(data.name))
+        TriggerEvent('chat:removeSuggestion', ('/-%s'):format(data.name))
+    end)
+
+    return data
+end
+
+
+
+
+local function getModuleInfo(modName)
+    local resource = modName:match('^@(.-)/.+') --[[@as string?]]
+
+    if resource then
+        return resource, modName:sub(#resource + 3)
+    end
+
+    local idx = 4 -- call stack depth (kept slightly lower than expected depth "just in case")
+
+    while true do
+        local src = debug.getinfo(idx, 'S')?.source
+
+        if not src then
+            return cache.resource, modName
+        end
+
+        resource = src:match('^@@([^/]+)/.+')
+
+        if resource and not src:find('^@@ox_lib/imports/require') then
+            return resource, modName
+        end
+
+        idx += 1
+    end
+end
+
+local tempData = {}
+function package.searchpath(name, path)
+    local resource, modName = getModuleInfo(name:gsub('%.', '/'))
+    local tried = {}
+
+    for template in path:gmatch('[^;]+') do
+        local fileName = template:gsub('^%./', ''):gsub('?', modName:gsub('%.', '/') or modName)
+        local file = LoadResourceFile(resource, fileName)
+
+        if file then
+            tempData[1] = file
+            tempData[2] = resource
+            return fileName
+        end
+
+        tried[#tried + 1] = ("no file '@%s/%s'"):format(resource, fileName)
+    end
+
+    return nil, table.concat(tried, "\n\t")
+end
+
+local function loadModule(modName, env)
+    local fileName, err = package.searchpath(modName, package.path)
+
+    if fileName then
+        local file = tempData[1]
+        local resource = tempData[2]
+
+        table.wipe(tempData)
+        return assert(load(file, ('@@%s/%s'):format(resource, fileName), 't', env or _ENV))
+    end
+
+    return nil, err or 'unknown error'
+end
+
+package.searchers = {
+    function(modName)
+        local ok, result = pcall(_require, modName)
+
+        if ok then return result end
+
+        return ok, result
+    end,
+    function(modName)
+        if package.preload[modName] ~= nil then
+            return package.preload[modName]
+        end
+
+        return nil, ("no field package.preload['%s']"):format(modName)
+    end,
+    function(modName) return loadModule(modName) end,
+}
+
+Utils.require = function(modName)
+    if type(modName) ~= 'string' then
+        error(("module name must be a string (received '%s')"):format(modName), 3)
+    end
+
+    local module = loaded[modName]
+
+    if module == '__loading' then
+        error(("^1circular-dependency occurred when loading module '%s'^0"):format(modName), 2)
+    end
+
+    if module ~= nil then return module end
+
+    loaded[modName] = '__loading'
+
+    local err = {}
+
+    for i = 1, #package.searchers do
+        local result, errMsg = package.searchers[i](modName)
+
+        if result then
+            if type(result) == 'function' then result = result() end
+            loaded[modName] = result or result == nil
+
+            return loaded[modName]
+        end
+
+        err[#err + 1] = errMsg
+    end
+
+    error(("%s"):format(table.concat(err, "\n\t")))
 end

@@ -91,7 +91,7 @@ RegisterNUICallback('CreateNewObject', function(data, cb)
     end
 
     if not Client.spawnedEntities[id] then
-        local offset = GetEntityCoords(cache.ped) + GetEntityForwardVector(cache.ped) * 3
+        local offset = GetEntityCoords(PlayerPedId()) + GetEntityForwardVector(PlayerPedId()) * 3
         RequestModel(modelName)
         while not HasModelLoaded(modelName) do
             RequestModel(modelName)
