@@ -24,7 +24,7 @@ local function LoadWorldPresetsObjects()
         if (v.objectList) then
             for i=1, #v.objectList do
                 local obj = v.objectList[i]
-                local model = GetHashKey(obj.name)
+                local model = obj.name
                 local pos = obj.position
                 local rot = obj.rotation
                 local entity = CreateObject(model, pos.x, pos.y, pos.z, false, false, false)
@@ -46,6 +46,7 @@ TriggerServerEvent('17mov_DevTool:getData')
 RegisterNetEvent('17mov_DevTool:setData')
 AddEventHandler('17mov_DevTool:setData', function(data)
     Client.data = data
+    Client.data.pedBones = Config.pedBones
 
     if (data.worldPresets) then
         LoadWorldPresetsObjects()

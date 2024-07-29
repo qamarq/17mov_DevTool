@@ -14,21 +14,21 @@ package = {
 Utils = {}
 
 Utils.weatherHashMap = {
-    [GetHashKey("CLEAR")] = "CLEAR",
-    [GetHashKey("EXTRASUNNY")] = "EXTRASUNNY",
-    [GetHashKey("CLOUDS")] = "CLOUDS",
-    [GetHashKey("OVERCAST")] = "OVERCAST",
-    [GetHashKey("RAIN")] = "RAIN",
-    [GetHashKey("CLEARING")] = "CLEARING",
-    [GetHashKey("THUNDER")] = "THUNDER",
-    [GetHashKey("SMOG")] = "SMOG",
-    [GetHashKey("FOGGY")] = "FOGGY",
-    [GetHashKey("XMAS")] = "XMAS",
-    [GetHashKey("SNOW")] = "SNOW",
-    [GetHashKey("SNOWLIGHT")] = "SNOWLIGHT",
-    [GetHashKey("BLIZZARD")] = "BLIZZARD",
-    [GetHashKey("HALLOWEEN")] = "HALLOWEEN",
-    [GetHashKey("NEUTRAL")] = "NEUTRAL"
+    [`CLEAR`] = "CLEAR",
+    [`EXTRASUNNY`] = "EXTRASUNNY",
+    [`CLOUDS`] = "CLOUDS",
+    [`OVERCAST`] = "OVERCAST",
+    [`RAIN`] = "RAIN",
+    [`CLEARING`] = "CLEARING",
+    [`THUNDER`] = "THUNDER",
+    [`SMOG`] = "SMOG",
+    [`FOGGY`] = "FOGGY",
+    [`XMAS`] = "XMAS",
+    [`SNOW`] = "SNOW",
+    [`SNOWLIGHT`] = "SNOWLIGHT",
+    [`BLIZZARD`] = "BLIZZARD",
+    [`HALLOWEEN`] = "HALLOWEEN",
+    [`NEUTRAL`] = "NEUTRAL"
 }
 
 Utils.listFlags = function(totalFlags, type)

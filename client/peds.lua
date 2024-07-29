@@ -38,8 +38,8 @@ RegisterNUICallback('CreateNewPed', function(data, cb)
     local offset = GetEntityCoords(PlayerPedId()) + GetEntityForwardVector(PlayerPedId()) * 3
     local heading = GetEntityHeading(PlayerPedId()) + 180
 
-    RequestModel(GetHashKey(data.model))
-	while not HasModelLoaded(GetHashKey(data.model)) do
+    RequestModel(data.model)
+	while not HasModelLoaded(data.model) do
 		Citizen.Wait(1)
 	end
 
@@ -145,8 +145,8 @@ RegisterNUICallback('ApplyChangesToPed', function(data, cb)
     local animClip = data.animation.clip
 
     if model ~= ped.model then
-        RequestModel(GetHashKey(model))
-        while not HasModelLoaded(GetHashKey(model)) do
+        RequestModel(model)
+        while not HasModelLoaded(model) do
             Citizen.Wait(1)
         end
         SetEntityAsMissionEntity(obj, true, true)

@@ -90,19 +90,15 @@ local CameraRotationKeys = {1,2,3,4,5,6}
 
 -- DISABLE ESCAPE KEY WHEN MENU IS OPEN
 Citizen.CreateThread(function()
-    local wait = 1000
-    while true do
-        if Client.isMenuOpen then
-            wait = 0
-            DisableControlAction(0, 202, true)
-            DisableControlAction(0, 142, true)
+    while Client.isMenuOpen do
+        DisableControlAction(0, 202, true)
+        DisableControlAction(0, 142, true)
 
-            if not Client.cameraRotation then
-                for _, key in ipairs(CameraRotationKeys) do
-                    DisableControlAction(0, key, true)
-                end
+        if not Client.cameraRotation then
+            for _, key in ipairs(CameraRotationKeys) do
+                DisableControlAction(0, key, true)
             end
         end
-        Citizen.Wait(wait)
+        Citizen.Wait(0)
     end
 end)

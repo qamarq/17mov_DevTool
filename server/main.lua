@@ -38,7 +38,6 @@ RegisterNetEvent('17mov_DevTool:getData')
 AddEventHandler('17mov_DevTool:getData', function()
     local returnData = {
         timecycles = formatTimecycles(getFileData('shared/data', 'timecycleModifiers.json')),
-        pedBones = getFileData('shared/data', 'pedBones.json'),
         worldPresets = getFileData('shared/data', 'worldPresets.json')
     }
 
