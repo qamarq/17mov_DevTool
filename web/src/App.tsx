@@ -14,7 +14,6 @@ import PedsPage from "./pages/peds";
 import { cn, isInBrowser } from "./lib/utils";
 import { useNuiEvent, useNuiRequest } from "fivem-nui-react-lib";
 import { useData } from "./hooks/use-data";
-import { Switch } from "./components/ui/switch";
 import Key from "./components/key";
 
 const PAGES = [
@@ -60,6 +59,20 @@ function App() {
      
         document.addEventListener("keydown", down)
         return () => document.removeEventListener("keydown", down)
+    }, [])
+
+    // keep input (active when left control pushed)
+    useEffect(() => {
+        const down = (e: KeyboardEvent) => { if (e.key === "Control") setKeepInput(true) }
+        const up = (e: KeyboardEvent) => { if (e.key === "Control") setKeepInput(false) }
+
+        document.addEventListener("keydown", down)
+        document.addEventListener("keyup", up)
+
+        return () => {
+            document.removeEventListener("keydown", down)
+            document.removeEventListener("keyup", up)
+        }
     }, [])
 
     useEffect(() => {
@@ -143,8 +156,9 @@ function App() {
                                 </AnimatePresence>
 
                                 <div className="flex items-center gap-2 pr-4">
-                                    <p className="text-sm font-semibold">Keep Input</p>
-                                    <Switch checked={keepInput} onCheckedChange={setKeepInput} />
+                                    <p className="text-sm font-semibold">Keep Input Status</p>
+                                    {/* <Switch checked={keepInput} onCheckedChange={setKeepInput} /> */}
+                                    <span>{keepInput ? '✅' : '❌'}</span>
                                 </div>
                             </div>
                             <>

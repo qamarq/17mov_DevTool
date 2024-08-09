@@ -11,18 +11,16 @@ local function toggleNuiFrame(bool)
 end
 
 function useGizmoAttach(handle, boneid, dict, anim)
+    local playerPed = PlayerPedId()
     spawnedProp = handle
     pedBoneId = boneid
-
-    local playerPed = PlayerPedId()
     lastCoord = GetEntityCoords(playerPed)
 
     FreezeEntityPosition(playerPed, true)
     SetEntityCoords(playerPed, 0.0, 0.0, extraZ-1)
     SetEntityHeading(playerPed, 0.0)
-    SetEntityRotation(pedBoneId, 0.0, 0.0, 0.0)
     position, rotation = vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 0.0)
-    AttachEntityToEntity(spawnedProp, playerPed, pedBoneId, position, rotation, true, true, false, true, 1, true)
+    -- AttachEntityToEntity(spawnedProp, playerPed, GetPedBoneIndex(playerPed, pedBoneId), position, rotation, true, true, false, true, 1, true)
 
     SendNUIMessage({
         app = '17mov_DevTool',
@@ -63,9 +61,36 @@ end
 
 RegisterNUICallback('moveEntity', function(data, cb)
     local entity = data.handle
-    position = data.position
-    rotation = data.rotation
-    AttachEntityToEntity(entity, PlayerPedId(), pedBoneId, extraZ-position.z, position.y, position.x, rotation.x, rotation.y, rotation.z, true, true, false, true, 1, true) --Same attach settings as dp emote and rp emotes
+    local globalOffset = vector3(data.position.x, data.position.y, data.position.z - 1000)
+    local globalRotation = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
+
+    local ped = PlayerPedId()
+    local boneIndex = GetPedBoneIndex(ped, pedBoneId)
+
+    local helperProp = CreateObject(`prop_cuff_keys_01`, 0, 0, 0, true, true, false)
+    AttachEntityToEntity(helperProp, ped, boneIndex, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, true, true, false, false, 1, true)
+
+    local forward, right, up, pos = GetEntityMatrix(helperProp)
+
+    DeleteEntity(helperProp)
+
+    local inverseRight = vector3(right.x, forward.x, up.x)
+    local inverseForward = vector3(right.y, forward.y, up.y)
+    local inverseUp = vector3(right.z, forward.z, up.z)
+
+    local localOffset = vector3(
+        inverseRight.x * globalOffset.x + inverseForward.x * globalOffset.y + inverseUp.x * globalOffset.z,
+        inverseRight.y * globalOffset.x + inverseForward.y * globalOffset.y + inverseUp.y * globalOffset.z,
+        inverseRight.z * globalOffset.x + inverseForward.z * globalOffset.y + inverseUp.z * globalOffset.z
+    )
+
+    local localRotation = vector3(
+        inverseRight.x * globalRotation.x + inverseForward.x * globalRotation.y + inverseUp.x * globalRotation.z,
+        inverseRight.y * globalRotation.x + inverseForward.y * globalRotation.y + inverseUp.y * globalRotation.z,
+        inverseRight.z * globalRotation.x + inverseForward.z * globalRotation.y + inverseUp.z * globalRotation.z
+    )
+
+    AttachEntityToEntity(entity, ped, boneIndex, localOffset.x, localOffset.y, localOffset.z, localRotation.x, localRotation.y, localRotation.z, true, true, false, true, 1, true)
     cb('ok')
 end)
 

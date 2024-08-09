@@ -18,6 +18,7 @@ import { useNuiCallback, useNuiEvent, useNuiRequest } from 'fivem-nui-react-lib'
 import { Dialog, DialogFooter, DialogHeader, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { debugJson } from '@/lib/utils';
+import { DialogDescription } from '@radix-ui/react-dialog';
 
 debugData([
     {
@@ -80,6 +81,7 @@ export default function PedsPage() {
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>Set name for the new ped</DialogTitle>
+                        <DialogDescription>Set the name and model for the new ped</DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -173,17 +175,16 @@ const PedComponent = ({ ped, deleteLoading, handleDeletePed, handleEnablePedGizm
                     <AccordionLayout>
                         <AccordionTitle className='w-auto'>Coordinates</AccordionTitle>
                         <div className='flex items-center gap-1'>
-                            <CopyCode value={ped.coords.x} label={`X: ${ped.coords.x}°`} />
-                            <CopyCode value={ped.coords.y} label={`Y: ${ped.coords.y}°`} />
-                            <CopyCode value={ped.coords.z} label={`Z: ${ped.coords.z}°`} />
+                            <CopyCode value={JSON.stringify(ped.coords)} />
                         </div>
                     </AccordionLayout>
                     <AccordionLayout>
                         <AccordionTitle className='w-auto'>Rotation</AccordionTitle>
                         <div className='flex items-center gap-1'>
-                            <CopyCode value={ped.rotation.x} label={`X: ${ped.rotation.x}°`} />
+                            {/* <CopyCode value={ped.rotation.x} label={`X: ${ped.rotation.x}°`} />
                             <CopyCode value={ped.rotation.y} label={`Y: ${ped.rotation.y}°`} />
-                            <CopyCode value={ped.rotation.z} label={`Z: ${ped.rotation.z}°`} />
+                            <CopyCode value={ped.rotation.z} label={`Z: ${ped.rotation.z}°`} /> */}
+                            <CopyCode value={JSON.stringify(ped.rotation)} />
                         </div>
                     </AccordionLayout>
                     <AccordionLayout>

@@ -9,12 +9,12 @@ export function cn(...inputs: ClassValue[]) {
 export const isInBrowser = (): boolean => !(window as any).invokeNative;
 
 export const setClipboard = (value: string) => {
-    const clipElem = document.createElement('input')
-    clipElem.value = value
-    document.body.appendChild(clipElem)
-    clipElem.select()
-    document.execCommand('copy')
-    document.body.removeChild(clipElem)
+    const el = document.createElement("textarea");
+    el.value = value;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand("copy");
+    document.body.removeChild(el);
 }
   
 export const debugJson = (obj: any) => {

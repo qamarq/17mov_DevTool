@@ -18,8 +18,7 @@ RegisterNUICallback('GetOffsetPropGizmo', function(data, cb)
     local playerPed = PlayerPedId()
     local playerCoords = GetEntityCoords(playerPed)
     local object = CreateObject(model, playerCoords.x, playerCoords.y, playerCoords.z, false, false, false)
-    local bone = GetPedBoneIndex(playerPed, boneId)
-    local objectPositionData = useGizmoAttach(object, bone, animDict, animClip)
+    local objectPositionData = useGizmoAttach(object, boneId, animDict, animClip)
     SendNUIMessage({
         app = '17mov_DevTool',
         method = 'setOffsetPropGizmo',
@@ -36,5 +35,5 @@ RegisterNUICallback('GetOffsetPropGizmo', function(data, cb)
         data = true
     })
     Client.isMenuOpen = true
-    cb()
+    cb('ok')
 end)

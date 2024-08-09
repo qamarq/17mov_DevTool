@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { debugData } from "@/lib/debugData";
 import { item } from "@/lib/framer";
-import { cn } from "@/lib/utils";
+import { cn, setClipboard } from "@/lib/utils";
 import { useNuiCallback, useNuiEvent, useNuiRequest } from "fivem-nui-react-lib";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -86,7 +86,7 @@ export default function WorldPage() {
 
 
     if (editingPreset) {
-        return <EditingPage preset={editingPreset} setEditingPreset={setEditingPreset} loadWorldPresets={loadWorldPresets} handleSavePresets={handleSavePresets} loadingSave={loadingSavePresets} setPresets={setPresets} />
+        return <EditingPage preset={editingPreset} setEditingPreset={setEditingPreset} loadWorldPresets={loadWorldPresets} handleSavePresets={handleSavePresets} loadingSave={loadingSavePresets} />
     }
 
     return (
@@ -106,15 +106,15 @@ export default function WorldPage() {
                         </div>
                     )}
                     {presets.map(preset => {
-                        const handleChangeVisibility = () => {
-                            setPresets(prev => prev.map(p => {
-                                if (p.id === preset.id) {
-                                    send("ChangeWorldPresetVisibility", { id: preset.id, visible: !preset.visible });
-                                    return { ...p, visible: !p.visible };
-                                }
-                                return p;
-                            }));
-                        }
+                        // const handleChangeVisibility = () => {
+                        //     setPresets(prev => prev.map(p => {
+                        //         if (p.id === preset.id) {
+                        //             send("ChangeWorldPresetVisibility", { id: preset.id, visible: !preset.visible });
+                        //             return { ...p, visible: !p.visible };
+                        //         }
+                        //         return p;
+                        //     }));
+                        // }
 
                         const handleDeletePreset = () => {
                             send("DeleteWorldPreset", { id: preset.id });
@@ -127,12 +127,12 @@ export default function WorldPage() {
                                     <h1 className='font-semibold text-sm text-zinc-100 w-full'>{preset.name}</h1>
                                     <div className="min-w-max flex items-center gap-3">
                                         <TooltipProvider delayDuration={1}>
-                                            <Tooltip>
+                                            {/* <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button onClick={handleChangeVisibility} motionBtn variant="outline" className="rounded-none" size="icon"><Icons.Eye className={cn("w-5 h-5", { 'text-logo': preset.visible })} /></Button>
                                                 </TooltipTrigger>
                                                 <TooltipContent>Change visibility</TooltipContent>
-                                            </Tooltip>
+                                            </Tooltip> */}
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button onClick={() => setEditingPreset(preset)} motionBtn variant="outline" className="rounded-none" size="icon"><Icons.Edit className="w-5 h-5" /></Button>
@@ -165,15 +165,14 @@ export default function WorldPage() {
     )
 }
 
-export function EditingPage({ preset, setEditingPreset, loadWorldPresets, handleSavePresets, loadingSave, setPresets }: { 
+export function EditingPage({ preset, setEditingPreset, loadWorldPresets, handleSavePresets, loadingSave }: { 
     preset: Preset, 
     setEditingPreset: React.Dispatch<React.SetStateAction<Preset | null>>, 
     loadWorldPresets: (data: any) => void, 
     handleSavePresets: () => void, 
-    loadingSave: boolean,
-    setPresets: React.Dispatch<React.SetStateAction<Preset[]>>
+    loadingSave: boolean
 }) {
-    const [presetName, setPresetName] = useState(preset.name);
+    const [newModelName, setNewModelName] = useState("prop_mp_cone_02");
     const { send } = useNuiRequest();
 
     const handleCancel = () => {
@@ -196,7 +195,7 @@ export function EditingPage({ preset, setEditingPreset, loadWorldPresets, handle
         fetchCreateNewObject({
             id: v4(),
             presetId: preset.id,
-            modelName: "prop_mp_cone_02",
+            modelName: newModelName,
             visible: true,
         })
     }
@@ -264,18 +263,44 @@ export function EditingPage({ preset, setEditingPreset, loadWorldPresets, handle
     }
 
     const handleSave = async () => {
-        send("SavePresetName", { id: preset.id, name: presetName });
-        setPresets(prev => prev.map(p => {
-            if (p.id === preset.id) {
-                return {
-                    ...p,
-                    name: presetName
-                }
-            }
-            return p;
-        }))
-        await wait(200)
+        // send("SavePresetName", { id: preset.id, name: presetName });
+        // setPresets(prev => prev.map(p => {
+        //     if (p.id === preset.id) {
+        //         return {
+        //             ...p,
+        //             name: presetName
+        //         }
+        //     }
+        //     return p;
+        // }))
+        // await wait(200)
         handleSavePresets();
+    }
+
+    const handleCopyObj = (obj: Preset["objectList"][0]) => {
+        const toCopy = `
+            model = ${obj.name},
+            coords = ${JSON.stringify(obj.position)},
+            rotation = ${JSON.stringify(obj.rotation)},
+        `
+        setClipboard(toCopy)
+        toast.success("Copied object to clipboard")
+    }
+
+    const handleCloneObj = (obj: Preset["objectList"][0]) => {
+        const newId = v4();
+        send("CloneObject", { obj, newId, presetId: preset.id });
+        setEditingPreset(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                objectList: [...prev.objectList, {
+                    ...obj,
+                    id: newId
+                }]
+            }
+        })
+        wait(200).then(() => loadWorldPresets({}));
     }
 
     return (
@@ -289,7 +314,7 @@ export function EditingPage({ preset, setEditingPreset, loadWorldPresets, handle
             <div className="grow flex flex-col">
                 <div className="grow">
                     <div className="p-4 space-y-4">
-                        <Input placeholder="Enter preset name" value={presetName} onChange={(e) => setPresetName(e.target.value)} className="w-full" />
+                        <Input placeholder="Enter new model name" value={newModelName} onChange={(e) => setNewModelName(e.target.value)} className="w-full" />
                         <Separator />
                         <div className="flex items-center justify-between">
                             <h1 className="text-md font-semibold">Object list</h1>
@@ -309,8 +334,11 @@ export function EditingPage({ preset, setEditingPreset, loadWorldPresets, handle
                                 <div key={obj.id} className="flex items-center justify-between bg-white/5 rounded-sm p-1" onMouseEnter={() => toggleSelectedObject(obj.id, true)} onMouseLeave={() => toggleSelectedObject(obj.id, false)}>
                                     <Input placeholder="Enter model name" defaultValue={obj.name} className="w-full bg-transparent border-none" />
                                     <div className="flex items-center gap-2">
-                                        <Button motionBtn variant="outline" className="rounded-none h-10 w-10" size={"icon"}>
+                                        <Button motionBtn variant="outline" className="rounded-none h-10 w-10" size={"icon"} onClick={() => handleCopyObj(obj)}>
                                             <Icons.Copy className={"w-5 h-5 text-zinc-300"} />
+                                        </Button>
+                                        <Button motionBtn variant="outline" className="rounded-none h-10 w-10" size={"icon"} onClick={() => handleCloneObj(obj)}>
+                                            <Icons.Clone className={"w-5 h-5 text-zinc-300"} />
                                         </Button>
                                         <Button 
                                             motionBtn 

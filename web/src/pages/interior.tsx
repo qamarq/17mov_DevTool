@@ -29,15 +29,13 @@ export default function InteriorPage() {
     const [timecycle, setTimecycle] = useState<string | null>(null)
     const [timecycleList] = useState<TimecyclesData[]>(timecyclesData!)
 
-    const handleSuccessReset = (resp: TimecyclesData | number) => {
-        if (resp !== 0 && typeof resp !== "number") {
-            const currentIndex = timecycleList.findIndex((option) => option.label === resp.label)
+    const handleSuccessReset = (resp: TimecyclesData) => {
+        const currentIndex = timecycleList.findIndex((option) => option.label === resp.label)
     
-            if (currentIndex === -1) {
-                setTimecycle(resp.value)
-            } else {
-                setTimecycle(timecycleList[currentIndex].value)
-            }
+        if (currentIndex === -1) {
+            setTimecycle(resp.value)
+        } else {
+            setTimecycle(timecycleList[currentIndex].value)
         }
     }
 

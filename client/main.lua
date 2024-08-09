@@ -34,12 +34,12 @@ RegisterCommand("17movdevtool_open", function()
     Client.GetInteriorData()
     SetNuiFocus(true, true)
     SendNUIMessage({
-        app = '17mov_DevTool', 
+        app = '17mov_DevTool',
         method = 'toggleUI',
         data = true
     })
     Client.isMenuOpen = true
-end)
+end, false)
 
 RegisterNUICallback("CloseUI", function(data, cb)
     SetNuiFocus(false,false)
@@ -50,7 +50,7 @@ end)
 RegisterNUICallback("CloseUIFromUI", function(data, cb)
     SetNuiFocus(false,false)
     SendNUIMessage({
-        app = '17mov_DevTool', 
+        app = '17mov_DevTool',
         method = 'toggleUI',
         data = false
     })
@@ -62,6 +62,27 @@ RegisterNUICallback("KeepInput", function(data)
     SetNuiFocusKeepInput(data)
     Client.isKeepInput = data
 end)
+
+-- RegisterCommand('+keepinput', function()
+--     Client.isKeepInput = true
+--     SetNuiFocusKeepInput(true)
+--     SendNUIMessage({
+--         app = '17mov_DevTool',
+--         method = 'setKeepInput',
+--         data = true
+--     })
+-- end, false)
+-- RegisterCommand('-keepinput', function()
+--     Client.isKeepInput = false
+--     SetNuiFocusKeepInput(false)
+--     SendNUIMessage({
+--         app = '17mov_DevTool',
+--         method = 'setKeepInput',
+--         data = true
+--     })
+-- end, false)
+
+-- RegisterKeyMapping('+keepinput', 'Keep Input', 'keyboard', 'LCONTROL')
 
 RegisterNUICallback('ToggleCameraRotation', function(data, cb)
     -- print("Camera rotation toggled: " .. json.encode(data))
@@ -75,6 +96,7 @@ RegisterNUICallback('setTime', function(data, cb)
     print("Setting time to: " .. data.hour .. ":" .. data.minute)
     NetworkOverrideClockTime(data.hour, data.minute, 0)
     TriggerServerEvent('17mov_DevTool:setTime', data)
+    cb("ok")
 end)
 
 RegisterNUICallback('setWeather', function(data, cb)
@@ -82,18 +104,21 @@ RegisterNUICallback('setWeather', function(data, cb)
     SetWeatherTypeNowPersist(data.weather)
     SetWeatherTypePersist(data.weather)
     TriggerServerEvent('17mov_DevTool:setWeather', data)
+    cb("ok")
 end)
 
 RegisterNUICallback('setFreezeTime', function(data, cb)
     print("Freezing time: " .. json.encode(data))
     Client.freezeTime = data.state
     TriggerServerEvent('17mov_DevTool:freezeTime', data.state)
+    cb("ok")
 end)
 
 RegisterNUICallback('setFreezeWeather', function(data, cb)
     print("Freezing weather: " .. json.encode(data))
     Client.freezeWeather = data.state
     TriggerServerEvent('17mov_DevTool:freezeWeather', data.state)
+    cb("ok")
 end)
 
 

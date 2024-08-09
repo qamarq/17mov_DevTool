@@ -9,7 +9,7 @@ RegisterNUICallback('LoadWorldPresets', function(data, cb)
         method = 'LoadWorldPresetsSuccess',
         data = preparedPresets
     })
-    cb()
+    cb('ok')
 end)
 
 RegisterNUICallback('CreateWorldPreset', function(data, cb)
@@ -39,7 +39,7 @@ RegisterNUICallback('CreateWorldPreset', function(data, cb)
 
     SaveWorldPresets()
     
-    cb()
+    cb('ok')
 end)
 
 RegisterNUICallback('ChangeWorldPresetVisibility', function(data, cb)
@@ -50,7 +50,7 @@ RegisterNUICallback('ChangeWorldPresetVisibility', function(data, cb)
         Client.data.worldPresets[id]["visible"] = data.visible
     end
 
-    cb()
+    cb('ok')
 end)
 
 RegisterNUICallback('DeleteWorldPreset', function(data, cb)
@@ -73,7 +73,7 @@ RegisterNUICallback('DeleteWorldPreset', function(data, cb)
 
     SaveWorldPresets()
 
-    cb()
+    cb('ok')
 end)
 
 RegisterNUICallback('CreateNewObject', function(data, cb)
@@ -128,7 +128,50 @@ RegisterNUICallback('CreateNewObject', function(data, cb)
         data = Client.spawnedEntities[id]
     })
 
-    cb()
+    cb('ok')
+end)
+
+RegisterNUICallback('CloneObject', function(data, cb)
+    print('Cloning object...')
+    local obj = data.obj
+    local presetId = data.presetId
+    local newId = data.newId
+
+    if not Client.spawnedEntities[newId] then
+        local position = obj.position
+        local rotation = obj.rotation
+        RequestModel(obj.name)
+        while not HasModelLoaded(obj.name) do
+            RequestModel(obj.name)
+            Wait(0)
+        end
+        local newObj = CreateObject(obj.name, position.x, position.y, position.z, false, false, false)
+        SetEntityRotation(newObj, rotation.x, rotation.y, rotation.z, 2, true)
+        FreezeEntityPosition(newObj, true)
+        SetEntityCollision(newObj, false, false)
+        local entityCoords = GetEntityCoords(newObj)
+        local entityRotation = GetEntityRotation(newObj)
+        Client.spawnedEntities[newId] = {
+            id = newId,
+            handle = newObj,
+            name = obj.name,
+            position = {
+                x = Utils.round(entityCoords.x, 3),
+                y = Utils.round(entityCoords.y, 3),
+                z = Utils.round(entityCoords.z, 3)
+            },
+            rotation = {
+                x = Utils.round(entityRotation.x, 3),
+                y = Utils.round(entityRotation.y, 3),
+                z = Utils.round(entityRotation.z, 3)
+            },
+            visible = obj.visible
+        }
+    end
+
+    table.insert(Client.data.worldPresets[presetId]["objectList"], Client.spawnedEntities[newId])
+
+    cb('ok')
 end)
 
 RegisterNUICallback('ChangeObjectVisibility', function(data, cb)
@@ -149,12 +192,13 @@ RegisterNUICallback('ChangeObjectVisibility', function(data, cb)
         SetEntityVisible(Client.spawnedEntities[objId].handle, visible)
     end
 
-    cb()
+    cb('ok')
 end)
 
 RegisterNUICallback('EnableGizmoToObject', function(data, cb)
     local objId = data.objId
     local presetId = data.presetId
+    cb('ok')
 
     if (Client.spawnedEntities[objId]) then
         local obj = Client.spawnedEntities[objId].handle
@@ -198,8 +242,6 @@ RegisterNUICallback('EnableGizmoToObject', function(data, cb)
             }
         })
     end
-
-    cb()
 end)
 
 RegisterNUICallback('ToggleSelectedObject', function(data, cb)
@@ -210,7 +252,7 @@ RegisterNUICallback('ToggleSelectedObject', function(data, cb)
         SetEntityDrawOutline(Client.spawnedEntities[objId].handle, selected)
     end
 
-    cb()
+    cb('ok')
 end)
 
 RegisterNUICallback('DeleteObject', function(data, cb)
@@ -230,7 +272,7 @@ RegisterNUICallback('DeleteObject', function(data, cb)
         Client.spawnedEntities[objId] = nil
     end
 
-    cb()
+    cb('ok')
 end)
 
 RegisterNUICallback('SavePresetName', function(data, cb)
@@ -241,12 +283,7 @@ RegisterNUICallback('SavePresetName', function(data, cb)
         Client.data.worldPresets[id]["name"] = name
     end
 
-    cb()
-end)
-
-RegisterNUICallback('SavePresets', function(data, cb)
-    SaveWorldPresets()
-    cb()
+    cb('ok')
 end)
 
 local function SaveWorldPresets()
@@ -259,3 +296,8 @@ local function SaveWorldPresets()
         method = 'SavePresetsSuccess'
     })
 end
+
+RegisterNUICallback('SavePresets', function(data, cb)
+    SaveWorldPresets()
+    cb('ok')
+end)

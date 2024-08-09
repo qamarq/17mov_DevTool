@@ -223,7 +223,16 @@ Utils.addKeybind({
     defaultKey = 'LMENU',
     onPressed = function(self)
         if not gizmoEnabled then return end
+        print("Snapping to ground "..currentEntity)
         PlaceObjectOnGroundProperly_2(currentEntity)
+        PlaceObjectOnGroundProperly(currentEntity)
+
+        -- if entity is ped
+        if IsEntityAPed(currentEntity) then
+            local pedCoords = GetEntityCoords(currentEntity)
+            local entityHeight = GetEntityHeightAboveGround(currentEntity)
+            SetEntityCoords(currentEntity, pedCoords.x, pedCoords.y, pedCoords.z - entityHeight, false, false, true, false)
+        end
     end,
 })
 

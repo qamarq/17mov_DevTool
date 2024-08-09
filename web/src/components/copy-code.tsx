@@ -1,10 +1,10 @@
 import { toast } from "sonner";
 import { Icons } from "./icons";
-import { cn } from "@/lib/utils";
+import { cn, setClipboard } from "@/lib/utils";
 
 export default function CopyCode(props: { value: string | number, label?: string, className?: string }) {
     const handleCopy = () => {
-        navigator.clipboard.writeText(props.value.toString())
+        setClipboard(props.value.toString())
         toast.success('Copied to clipboard')
     }
 
