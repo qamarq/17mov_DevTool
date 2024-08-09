@@ -7,6 +7,8 @@ interface IncomingData {
     heading: number,
     time: { hour: string, minute: string },
     weather: WeatherType,
+    freezeTime: boolean,
+    freezeWeather: boolean,
     portals: {
         portalPoly: boolean;
         portalLines: boolean;

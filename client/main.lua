@@ -13,6 +13,8 @@ RegisterCommand("17movdevtool_open", function()
                 minute = GetClockMinutes()
             },
             weather = Utils.weatherHashMap[GetWeatherTypeTransition()],
+            freezeTime = Client.freezeTime,
+            freezeWeather = Client.freezeWeather,
             portals = {
                 portalPoly = Client.portalPoly,
                 portalLines = Client.portalLines,
@@ -71,12 +73,27 @@ RegisterKeyMapping('17movdevtool_open', 'Open 17Movement Devtool', 'keyboard', '
 -- CALLBACKS
 RegisterNUICallback('setTime', function(data, cb)
     print("Setting time to: " .. data.hour .. ":" .. data.minute)
+    NetworkOverrideClockTime(data.hour, data.minute, 0)
     TriggerServerEvent('17mov_DevTool:setTime', data)
 end)
 
 RegisterNUICallback('setWeather', function(data, cb)
     print("Setting weather to: " .. data.weather)
+    SetWeatherTypeNowPersist(data.weather)
+    SetWeatherTypePersist(data.weather)
     TriggerServerEvent('17mov_DevTool:setWeather', data)
+end)
+
+RegisterNUICallback('setFreezeTime', function(data, cb)
+    print("Freezing time: " .. data.state)
+    Client.freezeTime = data.state
+    TriggerServerEvent('17mov_DevTool:freezeTime', data.state)
+end)
+
+RegisterNUICallback('setFreezeWeather', function(data, cb)
+    print("Freezing weather: " .. data.state)
+    Client.freezeWeather = data.state
+    TriggerServerEvent('17mov_DevTool:freezeWeather', data.state)
 end)
 
 

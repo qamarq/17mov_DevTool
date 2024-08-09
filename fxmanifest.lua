@@ -5,8 +5,6 @@ version '1.0'
 description '17movement devtool'
 author 'qamarq'
 
-shared_scripts {'@es_extended/imports.lua'}
-
 ui_page 'web/build/index.html'
 
 shared_scripts {
@@ -34,10 +32,10 @@ files {
     'web/build/assets/*.png',
     'web/build/assets/*.jpg',
     'client/dataview.lua',
+    'shared/data/*.json'
 }
 
 server_scripts {
     '@mysql-async/lib/MySQL.lua',
-    'server/functions.lua',
     'server/main.lua'
 }

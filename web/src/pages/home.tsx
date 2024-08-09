@@ -29,6 +29,9 @@ export default function HomePage() {
     const { data } = useData();
     const { send } = useNuiRequest()
     const firstTimeRef = useRef(true);
+
+    const [freezeTime, setFreezeTime] = useState(false);
+    const [freezeWeather, setFreezeWeather] = useState(false);
     
     const [time, setTime] = useState({ hour: '13', minute: '06' });
     const [weather, setWeather] = useState('clear');
@@ -37,6 +40,8 @@ export default function HomePage() {
         if (!data || !firstTimeRef.current) return;
         setTime(data.time);
         setWeather(data.weather);
+        setFreezeTime(data.freezeTime);
+        setFreezeWeather(data.freezeWeather);
         firstTimeRef.current = false
     }, [data])
 
@@ -48,6 +53,18 @@ export default function HomePage() {
     const setNewWeather = () => {
         send('setWeather', { weather: weather });
         toast.success('Setting weather to ' + weather);
+    }
+
+    const handleSetFreezeTime = (state: boolean) => {
+        send('setFreezeTime', { state });
+        setFreezeTime(state);
+        toast.success('Freeze time ' + (state ? 'enabled' : 'disabled'));
+    }
+
+    const handleSetFreezeWeather = (state: boolean) => {
+        send('setFreezeWeather', { state });
+        setFreezeWeather(state);
+        toast.success('Freeze weather ' + (state ? 'enabled' : 'disabled'));
     }
 
     return (
@@ -138,11 +155,11 @@ export default function HomePage() {
                         </AccordionLayout>
                         <AccordionLayout>
                             <AccordionTitle>Freeze time</AccordionTitle>
-                            <Switch />  
+                            <Switch checked={freezeTime} onCheckedChange={(val) => handleSetFreezeTime(val)} />  
                         </AccordionLayout>
                         <AccordionLayout>
-                            <AccordionTitle>Freeze weather status</AccordionTitle>
-                            <Switch defaultChecked />
+                            <AccordionTitle>Freeze weather</AccordionTitle>
+                            <Switch checked={freezeWeather} onCheckedChange={(val) => handleSetFreezeWeather(val)} />
                         </AccordionLayout>
                     </div>
                 </AccordionContent>

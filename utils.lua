@@ -328,3 +328,33 @@ Utils.require = function(modName)
 
     error(("%s"):format(table.concat(err, "\n\t")))
 end
+
+
+
+
+
+Utils.getFileData = function(path, file)
+    return json.decode(LoadResourceFile(GetCurrentResourceName(), path .. '/' .. file))
+end
+
+Utils.formatTimecycles = function(timecycles)
+    local formatedTimecycles = {}
+
+    for i=1, #timecycles do
+        local v = timecycles[i]
+        local found
+        for j=1, #formatedTimecycles do
+            if formatedTimecycles[j].label == v.Name then
+                found = true
+                break
+            end
+        end
+        if not found then
+            table.insert(formatedTimecycles, { label = v.Name, value = tostring(joaat(v.Name)) })
+        end
+    end
+
+    table.sort(formatedTimecycles, function(a, b) return a.label < b.label end)
+
+    return formatedTimecycles
+end

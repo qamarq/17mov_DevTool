@@ -42,13 +42,16 @@ local function LoadWorldPresetsObjects()
     end
 end
 
-TriggerServerEvent('17mov_DevTool:getData')
-RegisterNetEvent('17mov_DevTool:setData')
-AddEventHandler('17mov_DevTool:setData', function(data)
-    Client.data = data
+CreateThread(function()
+    local returnData = {
+        timecycles = Utils.formatTimecycles(Utils.getFileData('shared/data', 'timecycleModifiers.json')),
+        worldPresets = Utils.getFileData('shared/data', 'worldPresets.json')
+    }
+
+    Client.data = returnData
     Client.data.pedBones = Config.pedBones
 
-    if (data.worldPresets) then
+    if (returnData.worldPresets) then
         LoadWorldPresetsObjects()
     end
 end)
