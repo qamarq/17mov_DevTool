@@ -85,13 +85,13 @@ RegisterNUICallback('setWeather', function(data, cb)
 end)
 
 RegisterNUICallback('setFreezeTime', function(data, cb)
-    print("Freezing time: " .. data.state)
+    print("Freezing time: " .. json.encode(data))
     Client.freezeTime = data.state
     TriggerServerEvent('17mov_DevTool:freezeTime', data.state)
 end)
 
 RegisterNUICallback('setFreezeWeather', function(data, cb)
-    print("Freezing weather: " .. data.state)
+    print("Freezing weather: " .. json.encode(data))
     Client.freezeWeather = data.state
     TriggerServerEvent('17mov_DevTool:freezeWeather', data.state)
 end)
